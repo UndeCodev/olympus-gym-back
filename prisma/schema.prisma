@@ -36,6 +36,19 @@ model email_template {
   updatedAt        DateTime?
 }
 
+model company_profile {
+  id          Int    @id @default(autoincrement())
+  logo        String
+  name        String
+  slogan      String
+  schedule    String
+  address     String
+  zip         String
+  phoneNumber String
+  email       String
+  socialMedia Json
+}
+
 enum Role {
   Client
   Admin
