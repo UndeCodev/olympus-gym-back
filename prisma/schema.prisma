@@ -41,11 +41,11 @@ model company_profile {
   logo        String
   name        String
   slogan      String
-  schedule    String
   address     String
   zip         String
   phoneNumber String
   email       String
+  schedule    Json
   socialMedia Json
 }
 
