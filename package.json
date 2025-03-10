@@ -11,6 +11,9 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix "
   },
+  "prisma": {
+    "seed": "node build/prisma/seed.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
