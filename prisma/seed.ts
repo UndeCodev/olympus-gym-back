@@ -46,11 +46,14 @@ const main = async () => {
       logo: 'https://res.cloudinary.com/dxhd2qugi/image/upload/c_thumb,w_200,g_face/v1740345372/olympus_gym/logos/kspuqawjzxaimtkic4xp.png',
       name: 'Olympus GYM',
       slogan: 'Entrena fuerte, vive mejor',
-      schedule: 'Lunes - Viernes: 6 AM - 10 PM',
       address: 'Calle Ficticia #123, Ciudad, País',
       zip: '12345',
       phoneNumber: '+52 123 456 7890',
       email: 'contacto@olympusgym.com',
+      schedule: [
+        { days: 'Lunes a Viernes', open: '6:00 A.M.', close: '10:00 P.M.' },
+        { days: 'Sábados', open: '10:00 A.M.', close: '2:00 P.M.' },
+      ],
       socialMedia: {
         facebook: 'https://facebook.com/olympusgym',
         instagram: 'https://instagram.com/olympusgym',
