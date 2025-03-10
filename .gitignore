@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Generated files
+build/
+dist/
+uploads/
+
+# Sensitive configuration files
+.env
+
+# Editor-specific directories
+.vscode/
+
+# Log and temporary files
+*.log
+*.tmp
+
+# Operating system-specific files
+.DS_Store
+Thumbs.db
+
+# Prisma (optional)
+prisma/migrations/
+*.db
