@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id               Int       @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  phoneNumber      String
+  birthDate        DateTime
+  email            String    @unique(map: "User_email_key")
+  password         String
+  emailVerified    Boolean   @default(false)
+  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime?
+  role             Role      @default(Client)
+}
+
+model email_template {
+  id               Int         @id @default(autoincrement())
+  messageType      MessageType @unique(map: "MessageType_type_key")
+  subject          String
+  title            String
+  message          String
+  actionPath       String
+  actionButtonText String
+  subMessage       String?
+  expirationTime   Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime?
+}
+
+enum Role {
+  Client
+  Admin
+  Employee
+}
+
+enum MessageType {
+  validateEmail
+  resetPassword
+}
