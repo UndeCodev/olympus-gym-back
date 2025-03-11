@@ -47,22 +47,20 @@ const main = async () => {
       name: 'Olympus GYM',
       slogan: 'Entrena fuerte, vive mejor',
       address: 'Calle Ficticia #123, Ciudad, País',
-      zip: '12345',
+      zip: '43060',
       phoneNumber: '+52 123 456 7890',
-      email: 'contacto@olympusgym.com',
+      email: 'olympusgym@soporte.com',
       schedule: [
         { days: 'Lunes a Viernes', open: '6:00 A.M.', close: '10:00 P.M.' },
         { days: 'Sábados', open: '10:00 A.M.', close: '2:00 P.M.' },
       ],
       socialMedia: {
         facebook: 'https://facebook.com/olympusgym',
-        instagram: 'https://instagram.com/olympusgym',
-        twitter: 'https://twitter.com/olympusgym',
       },
     },
   });
 
-  console.log('Email templates inserted correctly');
+  console.log('Company profile inserted correctly');
 };
 
 main()

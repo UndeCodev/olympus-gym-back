@@ -17,3 +17,24 @@ export const getCompanyProfile = async (): Promise<company_profile> => {
 
   return companyProfile;
 };
+
+export const updateCompanyProfile = async (
+  inputData: Omit<company_profile, 'id'>
+): Promise<company_profile> => {
+  const { socialMedia, schedule, ...dataToUpdate } = inputData;
+
+  const companyProfile = await getCompanyProfile();
+
+  const companyProfileUpdated = await prisma.company_profile.update({
+    where: {
+      id: companyProfile.id,
+    },
+    data: {
+      socialMedia: socialMedia ?? undefined,
+      schedule: schedule ?? undefined,
+      ...dataToUpdate,
+    },
+  });
+
+  return companyProfileUpdated;
+};
