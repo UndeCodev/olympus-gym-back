@@ -5,5 +5,6 @@ import * as SecuritySettingsController from '../controllers/security_settings.co
 const securitySettingsRoutes = Router();
 
 securitySettingsRoutes.get('/', SecuritySettingsController.getSecuritySettings);
+securitySettingsRoutes.put('/', SecuritySettingsController.updateSecuritySettings);
 
 export default securitySettingsRoutes;

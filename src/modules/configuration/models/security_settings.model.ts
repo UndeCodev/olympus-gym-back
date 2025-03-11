@@ -17,3 +17,23 @@ export const getSecuritySettings = async (): Promise<security_settings_accounts>
 
   return securitySettings;
 };
+
+export const updateSecuritySettings = async (
+  data: Pick<security_settings_accounts, 'maxLoginAttempts' | 'lockDurationMinutes'>
+): Promise<security_settings_accounts> => {
+  const { lockDurationMinutes, maxLoginAttempts } = data;
+
+  const currentSecuritySetting = await getSecuritySettings();
+
+  const updatedSecuritySettings = await prisma.security_settings_accounts.update({
+    where: {
+      id: currentSecuritySetting.id,
+    },
+    data: {
+      lockDurationMinutes,
+      maxLoginAttempts,
+    },
+  });
+
+  return updatedSecuritySettings;
+};
