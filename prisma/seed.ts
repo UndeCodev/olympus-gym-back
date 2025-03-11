@@ -28,7 +28,7 @@ const emailTemplates = [
   },
 ];
 
-const main = async () => {
+const main = async (): Promise<void> => {
   for (const template of emailTemplates) {
     await prisma.email_template.upsert({
       where: { messageType: template.messageType as MessageType },
@@ -61,6 +61,17 @@ const main = async () => {
   });
 
   console.log('Company profile inserted correctly');
+
+  await prisma.security_settings_accounts.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      maxLoginAttempts: 5,
+      lockDurationMinutes: 15,
+    },
+  });
+
+  console.log('Security settings to accounts inserted correctly');
 };
 
 main()

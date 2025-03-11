@@ -25,6 +25,7 @@ model user {
   role                Role      @default(Client)
 }
 
+// Tables to role admin
 model email_template {
   id               Int         @id @default(autoincrement())
   messageType      MessageType @unique(map: "MessageType_type_key")
@@ -37,6 +38,14 @@ model email_template {
   expirationTime   Int
   createdAt        DateTime    @default(now())
   updatedAt        DateTime?
+}
+
+model security_settings_accounts {
+  id                  Int      @id @default(autoincrement())
+  maxLoginAttempts    Int      @default(5)
+  lockDurationMinutes Int      @default(15)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model company_profile {
