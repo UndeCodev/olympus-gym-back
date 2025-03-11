@@ -41,7 +41,7 @@ model email_template {
 }
 
 model security_settings_accounts {
-  id                  String   @id @default(uuid())
+  id                  Int      @id @default(autoincrement())
   maxLoginAttempts    Int      @default(5)
   lockDurationMinutes Int      @default(15)
   createdAt           DateTime @default(now())
