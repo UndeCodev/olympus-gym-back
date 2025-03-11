@@ -8,18 +8,21 @@ datasource db {
 }
 
 model user {
-  id               Int       @id @default(autoincrement())
-  firstName        String
-  lastName         String
-  phoneNumber      String
-  birthDate        DateTime
-  email            String    @unique(map: "User_email_key")
-  password         String
-  emailVerified    Boolean   @default(false)
-  twoFactorEnabled Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime?
-  role             Role      @default(Client)
+  id                  Int       @id @default(autoincrement())
+  firstName           String
+  lastName            String
+  phoneNumber         String
+  birthDate           DateTime
+  email               String    @unique(map: "User_email_key")
+  password            String
+  failedLoginAttempts Int       @default(0)
+  timeToUnlock        DateTime?
+  accountLocked       Boolean   @default(false)
+  emailVerified       Boolean   @default(false)
+  twoFactorEnabled    Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime?
+  role                Role      @default(Client)
 }
 
 // Tables to role admin
