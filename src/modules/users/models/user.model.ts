@@ -12,7 +12,7 @@ import { getSecuritySettings } from '../../configuration/models/security_setting
 
 const prisma = new PrismaClient();
 
-export const findUserByEmail = async (email: string): Promise<user | AppError> => {
+export const findUserByEmail = async (email: string): Promise<user> => {
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -30,7 +30,7 @@ export const findUserByEmail = async (email: string): Promise<user | AppError> =
   return user;
 };
 
-export const findUserById = async (id: number): Promise<User | AppError> => {
+export const findUserById = async (id: number): Promise<User> => {
   const user = await prisma.user.findUnique({
     where: {
       id,
@@ -162,6 +162,27 @@ export const loginUser = async (
   };
 
   return user;
+};
+
+export const verifyUserEmail = async (id: number): Promise<void> => {
+  const userFound = await findUserById(id);
+
+  if (userFound.emailVerified) {
+    throw new AppError({
+      name: 'AuthError',
+      httpCode: HttpCode.BAD_REQUEST,
+      description: 'El correo electrónico ya ha sido verificado',
+    });
+  }
+
+  await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      emailVerified: true,
+    },
+  });
 };
 
 export const resetUserPassword = async (userId: number, newPassword: string): Promise<void> => {

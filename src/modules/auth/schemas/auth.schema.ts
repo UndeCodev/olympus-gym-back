@@ -22,10 +22,7 @@ export const registerSchema = z.object({
       invalid_type_error: 'Phone number must be a string',
       required_error: 'Phone number is required',
     })
-    .regex(
-      /^\d{3}-\d{3}-\d{4}$/,
-      'Invalid phone number format. Expected format: ###-###-####'
-    ),
+    .regex(/^\d{3}-\d{3}-\d{4}$/, 'Invalid phone number format. Expected format: ###-###-####'),
   birthDate: z.string().date(),
   email: z
     .string({
@@ -67,3 +64,6 @@ export const tokenAndNewPasswordSchema = z.object({
 
 // Just the email
 export const justUserEmailSchema = registerSchema.pick({ email: true });
+
+// Just the token
+export const verifyEmailSchema = tokenAndNewPasswordSchema.pick({ token: true });
