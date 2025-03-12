@@ -69,7 +69,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   try {
     const user = await UserModel.loginUser(resultValidation.data);
 
-    const token = jwt.sign({ userId: user?.id }, String(JWT_SECRET), {
+    const token = jwt.sign({ id: user.id }, String(JWT_SECRET), {
       expiresIn: '1h',
     });
 

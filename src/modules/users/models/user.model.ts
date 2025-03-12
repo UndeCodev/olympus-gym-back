@@ -77,13 +77,10 @@ export const createUser = async (input: User): Promise<User> => {
   });
 };
 
-export const loginUser = async (
-  input: AuthLoginDataUser
-): Promise<NonSensitiveUserData | undefined> => {
+export const loginUser = async (input: AuthLoginDataUser): Promise<NonSensitiveUserData> => {
   const { email, password } = input;
 
   const userFound = await findUserByEmail(email);
-  if (userFound instanceof AppError) return;
 
   if (!userFound.emailVerified) {
     throw new AppError({
@@ -123,7 +120,7 @@ export const loginUser = async (
     };
 
     // Lock the account if max attempts are reached
-    if (newFailedAttempts === maxLoginAttempts) {
+    if (newFailedAttempts >= maxLoginAttempts) {
       updateData.accountLocked = true;
       updateData.timeToUnlock = new Date(today.getTime() + lockDurationMinutes * 60000);
     }
