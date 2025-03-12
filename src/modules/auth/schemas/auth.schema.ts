@@ -52,10 +52,15 @@ export const loginSchema = registerSchema.pick({ email: true }).extend({
 });
 
 export const tokenAndNewPasswordSchema = z.object({
-  newPassword: z.string({
-    invalid_type_error: 'Password must be a string',
-    required_error: 'Password is required',
-  }),
+  newPassword: z
+    .string({
+      invalid_type_error: 'Password must be a string',
+      required_error: 'Password is required',
+    })
+    .refine(
+      validator.isStrongPassword,
+      'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol'
+    ),
   token: z.string({
     invalid_type_error: 'Token must be a string',
     required_error: 'Token is required',

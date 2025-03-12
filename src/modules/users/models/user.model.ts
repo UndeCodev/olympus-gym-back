@@ -186,9 +186,7 @@ export const verifyUserEmail = async (id: number): Promise<void> => {
 };
 
 export const resetUserPassword = async (userId: number, newPassword: string): Promise<void> => {
-  const userFound = await findUserById(userId);
-
-  if (userFound instanceof AppError) return;
+  await findUserById(userId);
 
   const hashedPassword = await hashPassword(newPassword);
 

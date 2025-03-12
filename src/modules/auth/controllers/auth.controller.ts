@@ -168,7 +168,7 @@ export const resendVerificationEmail = async (
   }
 };
 
-export const sendForgotPasswordEmail = async (
+export const sendResetPasswordEmail = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -185,20 +185,11 @@ export const sendForgotPasswordEmail = async (
 
   try {
     const { email } = resultValidation.data;
-    const userFound = await UserModel.findUserByEmail(email);
 
-    if (userFound === null) {
-      throw new AppError({
-        name: 'AuthError',
-        httpCode: HttpCode.NOT_FOUND,
-        description: `El usuario con el correo ${email} no está registrado.`,
-      });
-    }
+    // Verify that the user exits on the database
+    await UserModel.findUserByEmail(email);
 
-    // TODO: Implement return token
     await sendEmail('ResetPassword', email);
-
-    // TODO: Save reset token on database
 
     res.status(HttpCode.OK).json({
       message: 'Correo de recuperación enviado correctamente.',
@@ -208,7 +199,7 @@ export const sendForgotPasswordEmail = async (
   }
 };
 
-export const resetPassword = async (
+export const setNewPassword = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -228,7 +219,15 @@ export const resetPassword = async (
   try {
     const { id } = jwt.verify(token, String(JWT_SECRET)) as TokenPayload;
 
-    await UserModel.resetUserPassword(+id, newPassword);
+    if (isNaN(id)) {
+      throw new AppError({
+        name: 'AuthError',
+        httpCode: HttpCode.BAD_REQUEST,
+        description: 'El token no es válido.',
+      });
+    }
+
+    await UserModel.resetUserPassword(id, newPassword);
 
     res.json({
       message: 'Contraseña actualizada correctamente.',
