@@ -16,6 +16,8 @@ export const registerSchema = z.object({
       invalid_type_error: 'Last name must be a string',
       required_error: 'Last name is required',
     })
+    .regex(RegexPatterns.onlyLetters, 'Last name must contain only letters')
+    .min(2, 'Last name must be at least 2 characters long')
     .trim(),
   phoneNumber: z
     .string({
@@ -23,7 +25,10 @@ export const registerSchema = z.object({
       required_error: 'Phone number is required',
     })
     .regex(/^\d{3}-\d{3}-\d{4}$/, 'Invalid phone number format. Expected format: ###-###-####'),
-  birthDate: z.string().date(),
+  birthDate: z
+    .string()
+    .date()
+    .transform((val) => new Date(val)),
   email: z
     .string({
       invalid_type_error: 'Email must be a string',

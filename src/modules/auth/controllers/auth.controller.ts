@@ -37,13 +37,8 @@ export const createUser = async (
     return;
   }
 
-  const { birthDate } = resultValidation.data;
-
   try {
-    const userCreated = await UserModel.createUser({
-      ...resultValidation.data,
-      birthDate: new Date(birthDate),
-    });
+    const userCreated = await UserModel.createUser({ ...resultValidation.data });
 
     await sendEmail('ValidateEmail', userCreated.email);
 
