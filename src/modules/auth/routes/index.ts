@@ -11,6 +11,6 @@ authRoutes.put('/verify-email', AuthController.verifyEmail);
 authRoutes.post('/resend-verification-email', AuthController.resendVerificationEmail);
 
 authRoutes.post('/send-reset-password-email', AuthController.sendResetPasswordEmail);
-authRoutes.post('/set-new-password', AuthController.setNewPassword);
+authRoutes.put('/set-new-password', AuthController.setNewPassword);
 
 export default authRoutes;

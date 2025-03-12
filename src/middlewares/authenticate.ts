@@ -20,7 +20,7 @@ export const authenticateMiddleware = (req: Request, res: Response, next: NextFu
     const tokenDecoded = jwt.verify(token, String(JWT_SECRET));
 
     if (typeof tokenDecoded !== 'string' && 'id' in tokenDecoded) {
-      res.locals.user = (tokenDecoded as JwtPayload).id;
+      res.locals.userId = (tokenDecoded as JwtPayload).id;
       next();
 
       return;
