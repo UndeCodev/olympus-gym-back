@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/env';
 
-import { AppError } from '../exceptions/AppError';
+import { JWT_SECRET } from '../config/env';
 import { HttpCode } from '../common/enums/HttpCode';
 
 export const authenticateMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const token = req.cookies.access_token ?? null;
 
   if (!token) {
-    throw new AppError({
-      name: 'TokenError',
-      httpCode: HttpCode.UNAUTHORIZED,
-      description: 'No token provided',
+    res.status(HttpCode.FORBIDDEN).json({
+      message: 'No token provided',
     });
+
+    return;
   }
 
   try {
@@ -21,21 +20,15 @@ export const authenticateMiddleware = (req: Request, res: Response, next: NextFu
 
     if (typeof tokenDecoded !== 'string' && 'id' in tokenDecoded) {
       res.locals.userId = (tokenDecoded as JwtPayload).id;
-      next();
-
-      return;
+      return next();
     }
 
-    throw new AppError({
-      name: 'TokenError',
-      httpCode: HttpCode.UNAUTHORIZED,
-      description: 'Invalid token',
+    res.status(HttpCode.FORBIDDEN).json({
+      message: 'Invalid token',
     });
   } catch {
-    throw new AppError({
-      name: 'TokenError',
-      httpCode: HttpCode.UNAUTHORIZED,
-      description: 'Invalid token',
+    res.status(HttpCode.FORBIDDEN).json({
+      message: 'Invalid token',
     });
   }
 };

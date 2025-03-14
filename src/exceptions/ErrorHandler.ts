@@ -8,6 +8,7 @@ class ErrorHandler {
   private isTrustedError(error: Error): boolean {
     if (error instanceof AppError) return error.isOperational;
     if (error instanceof JsonWebTokenError) return true;
+    if (error.message.includes('token')) return true;
 
     return false;
   }
@@ -20,14 +21,12 @@ class ErrorHandler {
     }
   }
 
-  private handleTrustedError(
-    error: AppError | Error,
-    response: Response
-  ): void {
+  private handleTrustedError(error: AppError | Error, response: Response): void {
     if (error instanceof AppError) {
       response.status(error.httpCode).json({ message: error.message });
     }
-    if (error instanceof JsonWebTokenError) {
+
+    if (error instanceof JsonWebTokenError || error.message.includes('token')) {
       response
         .status(HttpCode.UNAUTHORIZED)
         .json({ message: 'El token proporcionado ha expirado o es inválido.' });
@@ -38,9 +37,7 @@ class ErrorHandler {
     // TODO: Implement an error log file
 
     if (response !== undefined) {
-      response
-        .status(HttpCode.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+      response.status(HttpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
     }
 
     console.log('Application encountered a critical error. Exiting');
