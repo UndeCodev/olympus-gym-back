@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as ProfileModel from '../models/profile.model';
 import { zodValidation } from '../../../utils/zodValidation';
-import { userProfileSchema } from '../schemas/user.schema';
+import { currentPasswordSchema, userProfileSchema } from '../schemas/user.schema';
 import { HttpCode } from '../../../common/enums/HttpCode';
+import bcrypt from 'bcrypt';
 
 export const getUserProfile = async (
   _req: Request,
@@ -46,6 +47,52 @@ export const updateUserProfile = async (
 
     res.json({
       userProfileUpdated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const userId = res.locals.userId;
+
+  const resultValidation = zodValidation(currentPasswordSchema, req.body);
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format(),
+    });
+    return;
+  }
+
+  const { password: currentPassword } = resultValidation.data;
+
+  try {
+    const userFound = await ProfileModel.getUserByIdWithPassword(userId);
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, userFound.password);
+
+    if (!isPasswordValid) {
+      res.status(HttpCode.UNAUTHORIZED).json({
+        message: 'Contraseña incorrecta.',
+      });
+      return;
+    }
+
+    await ProfileModel.deleteUserProfile(userId);
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    res.json({
+      message: 'Profile deleted successfully',
     });
   } catch (error) {
     next(error);

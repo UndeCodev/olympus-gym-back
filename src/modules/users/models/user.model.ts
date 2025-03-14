@@ -41,7 +41,7 @@ export const findUserById = async (id: number): Promise<user> => {
     throw new AppError({
       name: 'AuthError',
       httpCode: HttpCode.BAD_REQUEST,
-      description: `El usuario con el ID ${id} no fue encontrado.`,
+      description: `Usuario no encontrado.`,
     });
   }
 
