@@ -111,14 +111,6 @@ export const verifyEmail = async (
 
     const { id } = jwt.verify(token, String(JWT_SECRET)) as TokenPayload;
 
-    if (isNaN(id)) {
-      throw new AppError({
-        name: 'AuthError',
-        httpCode: HttpCode.BAD_REQUEST,
-        description: 'El token no es válido.',
-      });
-    }
-
     await UserModel.verifyUserEmail(id);
 
     res.json({
@@ -218,14 +210,6 @@ export const setNewPassword = async (
 
   try {
     const { id } = jwt.verify(token, String(JWT_SECRET)) as TokenPayload;
-
-    if (isNaN(id)) {
-      throw new AppError({
-        name: 'AuthError',
-        httpCode: HttpCode.BAD_REQUEST,
-        description: 'El token no es válido.',
-      });
-    }
 
     await UserModel.resetUserPassword(id, newPassword);
 
