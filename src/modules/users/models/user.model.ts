@@ -30,7 +30,7 @@ export const findUserByEmail = async (email: string): Promise<user> => {
   return user;
 };
 
-export const findUserById = async (id: number): Promise<User> => {
+export const findUserById = async (id: number): Promise<user> => {
   const user = await prisma.user.findUnique({
     where: {
       id,
@@ -41,7 +41,7 @@ export const findUserById = async (id: number): Promise<User> => {
     throw new AppError({
       name: 'AuthError',
       httpCode: HttpCode.BAD_REQUEST,
-      description: `El usuario con el ID ${id} no fue encontrado.`,
+      description: `Usuario no encontrado.`,
     });
   }
 
