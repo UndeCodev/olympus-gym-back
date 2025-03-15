@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                  Int       @id @default(autoincrement())
+  firstName           String
+  lastName            String
+  phoneNumber         String
+  birthDate           DateTime
+  email               String    @unique(map: "User_email_key")
+  password            String
+  failedLoginAttempts Int       @default(0)
+  timeToUnlock        DateTime?
+  accountLocked       Boolean   @default(false)
+  emailVerified       Boolean   @default(false)
+  twoFactorEnabled    Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime?
+  role                Role      @default(Client)
+}
+
+// Tables to role admin
+model email_template {
+  id               Int         @id @default(autoincrement())
+  messageType      MessageType @unique(map: "MessageType_type_key")
+  subject          String
+  title            String
+  message          String
+  actionPath       String
+  actionButtonText String
+  subMessage       String?
+  expirationTime   Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime?
+}
+
+model security_settings_accounts {
+  id                  Int      @id @default(autoincrement())
+  maxLoginAttempts    Int      @default(5)
+  lockDurationMinutes Int      @default(15)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model company_profile {
+  id          Int    @id @default(autoincrement())
+  logo        String
+  name        String
+  slogan      String
+  address     String
+  zip         String
+  phoneNumber String
+  email       String
+  schedule    Json
+  socialMedia Json
+}
+
+enum Role {
+  Client
+  Admin
+  Employee
+}
+
+enum MessageType {
+  ValidateEmail
+  ResetPassword
+}
