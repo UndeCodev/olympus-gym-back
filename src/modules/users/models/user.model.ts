@@ -12,6 +12,7 @@ import { getSecuritySettings } from '../../configuration/models/security_setting
 
 const prisma = new PrismaClient();
 
+// Allowed methods to Client
 export const findUserByEmail = async (email: string): Promise<user> => {
   const user = await prisma.user.findUnique({
     where: {
@@ -195,6 +196,13 @@ export const resetUserPassword = async (userId: number, newPassword: string): Pr
       password: hashedPassword,
     },
   });
+};
+
+// Allowed methods to Admin
+export const getAllUsers = async (): Promise<user[]> => {
+  const allUsers = await prisma.user.findMany();
+
+  return allUsers;
 };
 
 //  const default = async(input: data): Promise<boolean | AppError> => {
