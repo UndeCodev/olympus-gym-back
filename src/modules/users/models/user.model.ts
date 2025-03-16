@@ -1,6 +1,10 @@
 import { PrismaClient, user } from '@prisma/client';
 
-import type { AuthLoginDataUser, NonSensitiveUserData } from '../../auth/common/types/auth.types';
+import type {
+  AdminEditableUserData,
+  AuthLoginDataUser,
+  NonSensitiveUserData,
+} from '../../auth/common/types/auth.types';
 import { AppError } from '../../../exceptions/AppError';
 
 import { hashPassword } from '../../../utils/hashPassword';
@@ -224,6 +228,54 @@ export const getAllUsers = async (): Promise<user[]> => {
   const allUsers = await prisma.user.findMany();
 
   return allUsers;
+};
+
+export const updateUserDetails = async (
+  userId: number,
+  dataToUpdate: Partial<AdminEditableUserData>
+): Promise<AdminEditableUserData> => {
+  const {
+    firstName,
+    lastName,
+    phoneNumber,
+    email,
+    role,
+    accountLocked,
+    failedLoginAttempts,
+    timeToUnlock,
+    emailVerified,
+  } = dataToUpdate;
+
+  const userDetailsUpdated = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      firstName,
+      lastName,
+      phoneNumber,
+      email, // Reverification
+      role, // Reverification
+      accountLocked,
+      failedLoginAttempts,
+      timeToUnlock,
+      emailVerified,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phoneNumber: true,
+      email: true,
+      role: true,
+      accountLocked: true,
+      failedLoginAttempts: true,
+      timeToUnlock: true,
+      emailVerified: true,
+    },
+  });
+
+  return userDetailsUpdated;
 };
 
 // export const default = async(input: data): Promise<user> => {

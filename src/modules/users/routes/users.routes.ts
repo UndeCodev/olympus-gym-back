@@ -5,5 +5,6 @@ const usersRoutes = Router();
 
 usersRoutes.get('/', UserController.getAllUsers);
 usersRoutes.get('/:id', UserController.getUserById);
+usersRoutes.put('/:id', UserController.updateUserById);
 
 export default usersRoutes;

@@ -6,3 +6,16 @@ export type NonSensitiveUserData = Pick<
 >;
 
 export type AuthLoginDataUser = Pick<user, 'email' | 'password'>;
+
+export type AdminEditableUserData = Pick<
+  user,
+  | 'firstName'
+  | 'lastName'
+  | 'phoneNumber'
+  | 'email'
+  | 'role'
+  | 'accountLocked'
+  | 'failedLoginAttempts'
+  | 'timeToUnlock'
+  | 'emailVerified'
+>;
