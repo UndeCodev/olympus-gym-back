@@ -13,4 +13,6 @@ authRoutes.post('/resend-verification-email', AuthController.resendVerificationE
 authRoutes.post('/send-reset-password-email', AuthController.sendResetPasswordEmail);
 authRoutes.post('/set-new-password', AuthController.setNewPassword);
 
+authRoutes.post('/2fa/setup', AuthController.setup2FA);
+
 export default authRoutes;

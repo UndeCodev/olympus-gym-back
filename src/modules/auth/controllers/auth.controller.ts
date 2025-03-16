@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
+import qrcode from 'qrcode';
+
 import * as UserModel from '../../users/models/user.model';
 
 import { JWT_SECRET, NODE_ENV } from '../../../config/env';
@@ -16,6 +18,7 @@ import {
 import { AppError } from '../../../exceptions/AppError';
 import { sendEmail } from '../../../services/mailService';
 import { zodValidation } from '../../../utils/zodValidation';
+import { authenticator } from 'otplib';
 
 interface TokenPayload extends JwtPayload {
   id: number;
@@ -215,6 +218,32 @@ export const setNewPassword = async (
 
     res.json({
       message: 'Contraseña actualizada correctamente.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setup2FA = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const resultValidation = zodValidation(justUserEmailSchema, req.body);
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format(),
+    });
+    return;
+  }
+
+  try {
+    const { email } = resultValidation.data;
+
+    const secret = authenticator.generateSecret();
+    const keyUri = authenticator.keyuri(email, 'OlympusGYM', secret);
+    const secretQrCode = await qrcode.toDataURL(keyUri);
+
+    res.json({
+      secretQrCode,
     });
   } catch (error) {
     next(error);
