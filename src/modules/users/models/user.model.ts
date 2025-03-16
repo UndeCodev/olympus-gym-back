@@ -49,6 +49,27 @@ export const findUserById = async (id: number): Promise<user> => {
   return user;
 };
 
+export const findUserByIdWithoutPassword = async (id: number): Promise<Omit<user, 'password'>> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+    omit: {
+      password: true,
+    },
+  });
+
+  if (user === null) {
+    throw new AppError({
+      name: 'AuthError',
+      httpCode: HttpCode.BAD_REQUEST,
+      description: `Usuario no encontrado.`,
+    });
+  }
+
+  return user;
+};
+
 export const createUser = async (input: User): Promise<User> => {
   const { firstName, lastName, phoneNumber, birthDate, email, password } = input;
 
@@ -205,5 +226,5 @@ export const getAllUsers = async (): Promise<user[]> => {
   return allUsers;
 };
 
-//  const default = async(input: data): Promise<boolean | AppError> => {
+// export const default = async(input: data): Promise<user> => {
 // }
