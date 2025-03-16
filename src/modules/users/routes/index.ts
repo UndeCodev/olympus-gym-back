@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import * as ProfileController from '../controllers/profile.controller';
+import usersRoutes from './users.routes';
+import profileRoutes from './profile.routes';
 
-const usersRoutes = Router();
+const userRoutes = Router();
 
-usersRoutes.get('/profile', ProfileController.getUserProfile);
-usersRoutes.put('/profile', ProfileController.updateUserProfile);
+userRoutes.use('/', usersRoutes);
+userRoutes.use('/profile', profileRoutes);
 
-usersRoutes.delete('/profile', ProfileController.deleteUserProfile);
-
-export default usersRoutes;
+export default userRoutes;
