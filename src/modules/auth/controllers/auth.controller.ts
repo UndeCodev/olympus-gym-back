@@ -4,8 +4,9 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import qrcode from 'qrcode';
 
 import * as UserModel from '../../users/models/user.model';
+import * as AuthModel from '../../auth/models/auth.model';
 
-import { JWT_SECRET, NODE_ENV } from '../../../config/env';
+import { JWT_SECRET, NODE_ENV, SECRET_2FA } from '../../../config/env';
 import { HttpCode } from '../../../common/enums/HttpCode';
 import {
   registerSchema,
@@ -13,6 +14,7 @@ import {
   justUserEmailSchema,
   tokenAndNewPasswordSchema,
   verifyEmailSchema,
+  verify2FaSchema,
 } from '../schemas/auth.schema';
 
 import { AppError } from '../../../exceptions/AppError';
@@ -224,8 +226,25 @@ export const setNewPassword = async (
   }
 };
 
-export const setup2FA = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const resultValidation = zodValidation(justUserEmailSchema, req.body);
+export const setup2FA = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const userId = res.locals.userId;
+
+  try {
+    const userFound = await UserModel.findUserById(+userId);
+
+    const keyUri = authenticator.keyuri(userFound.email, 'OlympusGYM', String(SECRET_2FA));
+    const qrCodeSetup = await qrcode.toDataURL(keyUri);
+
+    res.json({
+      qrCodeSetup,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verify2FA = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const resultValidation = zodValidation(verify2FaSchema, req.body);
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({
@@ -236,15 +255,45 @@ export const setup2FA = async (req: Request, res: Response, next: NextFunction):
   }
 
   try {
-    const { email } = resultValidation.data;
+    const userId = res.locals.userId;
+    const userFound = await UserModel.findUserById(+userId);
 
-    const secret = authenticator.generateSecret();
-    const keyUri = authenticator.keyuri(email, 'OlympusGYM', secret);
-    const secretQrCode = await qrcode.toDataURL(keyUri);
+    const { token } = resultValidation.data;
+    const isTokenValid = authenticator.verify({ token, secret: String(SECRET_2FA) });
+
+    if (isTokenValid) {
+      await AuthModel.enable2FA(userFound.email);
+    }
 
     res.json({
-      secretQrCode,
+      isTokenValid,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const disable2FA = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const userId = res.locals.userId;
+
+  try {
+    const userFound = await UserModel.findUserById(+userId);
+
+    if (!userFound.twoFactorEnabled) {
+      res.json({
+        message: 'La autenticación de 2 pasos ya está desactivada.',
+      });
+
+      return;
+    }
+
+    await AuthModel.disable2FA(userFound.email);
+
+    res.sendStatus(HttpCode.OK);
   } catch (error) {
     next(error);
   }

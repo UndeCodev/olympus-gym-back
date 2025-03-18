@@ -4,6 +4,7 @@ export const {
   PORT = 3000,
   SALT_ROUNDS = 10,
   JWT_SECRET,
+  SECRET_2FA,
   NODE_ENV = 'development',
   BASE_URL,
   FRONT_BASE_URL,
