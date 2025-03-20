@@ -92,8 +92,12 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-export const logout = async (_req: Request, res: Response): Promise<void> => {
-  res.clearCookie('access_token').json({ message: 'logout successfull' });
+export const logout = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.clearCookie('access_token').sendStatus(HttpCode.OK);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const verifyEmail = async (
@@ -114,13 +118,19 @@ export const verifyEmail = async (
   try {
     const { token } = resultValidation.data;
 
-    const { id } = jwt.verify(token, String(JWT_SECRET)) as TokenPayload;
+    const tokenDecoded = jwt.verify(token, String(JWT_SECRET)) as TokenPayload;
 
-    await UserModel.verifyUserEmail(id);
+    if (typeof tokenDecoded !== 'string' && 'id' in tokenDecoded) {
+      const { id } = tokenDecoded;
 
-    res.json({
-      message: 'Correo verificado correctamente.',
-    });
+      const email = await UserModel.verifyUserEmail(id);
+
+      res.json({
+        email,
+      });
+
+      return;
+    }
   } catch (error) {
     next(error);
   }
@@ -159,6 +169,7 @@ export const resendVerificationEmail = async (
 
     res.status(HttpCode.OK).json({
       message: 'Correo de verificación enviado correctamente.',
+      email,
     });
   } catch (error) {
     next(error);
