@@ -48,6 +48,35 @@ export const findUserById = async (id: number): Promise<user> => {
   return user;
 };
 
+export const findUserByIdWithoutSensitiveData = async (
+  id: number
+): Promise<NonSensitiveUserData> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phoneNumber: true,
+      birthDate: true,
+      role: true,
+    },
+  });
+
+  if (user === null) {
+    throw new AppError({
+      name: 'AuthError',
+      httpCode: HttpCode.BAD_REQUEST,
+      description: `Usuario no encontrado.`,
+    });
+  }
+
+  return user;
+};
+
 export const createUser = async (input: User): Promise<User> => {
   const { firstName, lastName, phoneNumber, birthDate, email, password } = input;
 
@@ -161,7 +190,7 @@ export const loginUser = async (input: AuthLoginDataUser): Promise<NonSensitiveU
   return user;
 };
 
-export const verifyUserEmail = async (id: number): Promise<void> => {
+export const verifyUserEmail = async (id: number): Promise<string> => {
   const userFound = await findUserById(id);
 
   if (userFound.emailVerified) {
@@ -172,14 +201,19 @@ export const verifyUserEmail = async (id: number): Promise<void> => {
     });
   }
 
-  await prisma.user.update({
+  const userUpdated = await prisma.user.update({
     where: {
       id,
     },
     data: {
       emailVerified: true,
     },
+    select: {
+      email: true,
+    },
   });
+
+  return userUpdated.email;
 };
 
 export const resetUserPassword = async (userId: number, newPassword: string): Promise<void> => {
