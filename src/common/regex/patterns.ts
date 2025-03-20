@@ -1,3 +1,3 @@
 export const RegexPatterns = {
-  onlyLetters: /^[a-zA-Z]+$/, // Verify if a string contains only letters,
+  onlyLetters: /^[a-zA-ZáéíóúüÁÉÍÓÚñÑ\s]+$/, // Verify if a string contains only letters,
 };
