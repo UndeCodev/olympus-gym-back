@@ -3,8 +3,8 @@ import * as ProfileController from '../controllers/profile.controller';
 
 const profileRoutes = Router();
 
-profileRoutes.get('/profile', ProfileController.getUserProfile);
-profileRoutes.put('/profile', ProfileController.updateUserProfile);
-profileRoutes.delete('/profile', ProfileController.deleteUserProfile);
+profileRoutes.get('/', ProfileController.getUserProfile);
+profileRoutes.put('/', ProfileController.updateUserProfile);
+profileRoutes.delete('/', ProfileController.deleteUserProfile);
 
 export default profileRoutes;

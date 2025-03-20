@@ -4,7 +4,7 @@ import profileRoutes from './profile.routes';
 
 const userRoutes = Router();
 
-userRoutes.use('/', usersRoutes);
 userRoutes.use('/profile', profileRoutes);
+userRoutes.use('/', usersRoutes);
 
 export default userRoutes;
