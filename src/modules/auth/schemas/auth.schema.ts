@@ -69,6 +69,16 @@ export const tokenAndNewPasswordSchema = z.object({
   }),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z
+    .string()
+    .refine(
+      validator.isStrongPassword,
+      'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol'
+    ),
+});
+
 // Just the email
 export const justUserEmailSchema = registerSchema.pick({ email: true });
 
@@ -78,4 +88,5 @@ export const verifyEmailSchema = tokenAndNewPasswordSchema.pick({ token: true })
 // Email and token for 2FA
 export const verify2FaSchema = z.object({
   token: z.string(),
+  secret: z.string(),
 });

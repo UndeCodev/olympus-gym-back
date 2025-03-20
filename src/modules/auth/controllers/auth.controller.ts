@@ -6,7 +6,8 @@ import qrcode from 'qrcode';
 import * as UserModel from '../../users/models/user.model';
 import * as AuthModel from '../../auth/models/auth.model';
 
-import { JWT_SECRET, NODE_ENV, SECRET_2FA } from '../../../config/env';
+import { changePasswordSchema } from '../../auth/schemas/auth.schema';
+import { JWT_SECRET, NODE_ENV } from '../../../config/env';
 import { HttpCode } from '../../../common/enums/HttpCode';
 import {
   registerSchema,
@@ -232,17 +233,47 @@ export const setNewPassword = async (
   }
 };
 
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = zodValidation(changePasswordSchema, req.body);
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format(),
+    });
+    return;
+  }
+
+  try {
+    const userId = res.locals.userId;
+
+    const { currentPassword, newPassword } = resultValidation.data;
+
+    await AuthModel.changePassword(userId, currentPassword, newPassword);
+
+    res.sendStatus(HttpCode.OK);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const setup2FA = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   const userId = res.locals.userId;
 
   try {
     const userFound = await UserModel.findUserById(+userId);
 
-    const keyUri = authenticator.keyuri(userFound.email, 'OlympusGYM', String(SECRET_2FA));
+    const secret = authenticator.generateSecret();
+    const keyUri = authenticator.keyuri(userFound.email, 'OlympusGYM', secret);
     const qrCodeSetup = await qrcode.toDataURL(keyUri);
 
     res.json({
       qrCodeSetup,
+      manualCode: secret,
     });
   } catch (error) {
     next(error);
@@ -264,16 +295,22 @@ export const verify2FA = async (req: Request, res: Response, next: NextFunction)
     const userId = res.locals.userId;
     const userFound = await UserModel.findUserById(+userId);
 
-    const { token } = resultValidation.data;
-    const isTokenValid = authenticator.verify({ token, secret: String(SECRET_2FA) });
+    const { token, secret } = resultValidation.data;
+    const isTokenValid = authenticator.verify({ token, secret });
 
-    if (isTokenValid) {
+    if (!isTokenValid) {
+      res.status(HttpCode.UNAUTHORIZED).json({
+        message: 'Token inválido.',
+      });
+
+      return;
+    }
+
+    if (!userFound.twoFactorEnabled) {
       await AuthModel.enable2FA(userFound.email);
     }
 
-    res.json({
-      isTokenValid,
-    });
+    res.sendStatus(HttpCode.OK);
   } catch (error) {
     next(error);
   }

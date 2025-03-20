@@ -42,11 +42,13 @@ export const updateUserProfile = async (
   try {
     const userId = res.locals.userId;
 
+    console.log(resultValidation.data);
+
     // TODO: Implement an additional verification process, when the user change the email, similar to the one you perform when a user registers for the first time.
-    const userProfileUpdated = await ProfileModel.updateUserProfile(resultValidation.data, userId);
+    const profileUpdated = await ProfileModel.updateUserProfile(resultValidation.data, userId);
 
     res.json({
-      userProfileUpdated,
+      profileUpdated,
     });
   } catch (error) {
     next(error);

@@ -4,9 +4,6 @@ import { authenticateMiddleware } from '../../../middlewares/authenticate';
 
 const authRoutes = Router();
 
-// Check if user is authenticated
-authRoutes.get('/check-status', authenticateMiddleware, AuthController.checkAuthStatus);
-
 authRoutes.post('/register', AuthController.createUser);
 authRoutes.post('/login', AuthController.loginUser);
 authRoutes.post('/logout', AuthController.logout);
@@ -16,6 +13,12 @@ authRoutes.post('/resend-verification-email', AuthController.resendVerificationE
 
 authRoutes.post('/send-reset-password-email', AuthController.sendResetPasswordEmail);
 authRoutes.put('/set-new-password', AuthController.setNewPassword);
+
+// Check if user is authenticated
+authRoutes.get('/check-status', authenticateMiddleware, AuthController.checkAuthStatus);
+
+// All this routes needs a user authenticated
+authRoutes.put('/change-password', authenticateMiddleware, AuthController.changePassword);
 
 authRoutes.post('/2fa/setup', authenticateMiddleware, AuthController.setup2FA);
 authRoutes.post('/2fa/verify', authenticateMiddleware, AuthController.verify2FA);

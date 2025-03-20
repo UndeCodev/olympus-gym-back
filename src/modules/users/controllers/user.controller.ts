@@ -39,7 +39,7 @@ export const getUserById = async (
   try {
     const { id } = resultValidation.data;
 
-    const user = await UserModel.findUserByIdWithoutPassword(id);
+    const user = await UserModel.findUserByIdWithoutSensitiveData(id);
 
     res.json({
       user,

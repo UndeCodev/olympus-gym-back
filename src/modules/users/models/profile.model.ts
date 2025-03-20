@@ -57,11 +57,8 @@ export const updateUserProfile = async (
       lastName: true,
       phoneNumber: true,
       birthDate: true,
-      emailVerified: true,
-      twoFactorEnabled: true,
       role: true,
-      createdAt: true,
-      updatedAt: true,
+      twoFactorEnabled: true,
     },
   });
 

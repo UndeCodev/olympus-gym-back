@@ -68,6 +68,7 @@ export const findUserByIdWithoutSensitiveData = async (
       phoneNumber: true,
       birthDate: true,
       role: true,
+      twoFactorEnabled: true,
     },
   });
 
@@ -190,6 +191,7 @@ export const loginUser = async (input: AuthLoginDataUser): Promise<NonSensitiveU
     birthDate: userFound.birthDate,
     email: userFound.email,
     role: userFound.role,
+    twoFactorEnabled: userFound.twoFactorEnabled,
   };
 
   return user;
