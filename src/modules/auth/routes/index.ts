@@ -4,6 +4,9 @@ import { authenticateMiddleware } from '../../../middlewares/authenticate';
 
 const authRoutes = Router();
 
+// Check if user is authenticated
+authRoutes.get('/check-status', authenticateMiddleware, AuthController.checkAuthStatus);
+
 authRoutes.post('/register', AuthController.createUser);
 authRoutes.post('/login', AuthController.loginUser);
 authRoutes.post('/logout', AuthController.logout);

@@ -310,5 +310,23 @@ export const disable2FA = async (
   }
 };
 
+export const checkAuthStatus = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = res.locals.userId;
+
+    const user = await UserModel.findUserByIdWithoutSensitiveData(userId);
+
+    res.json({
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Default
 // export const default = async(req: Request, res: Response, next: NextFunction): Promise<void> => { }
