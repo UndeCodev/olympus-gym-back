@@ -49,7 +49,7 @@ export const sendEmail = async (
       expiresIn: emailTypeFound.expirationTime,
     });
 
-    const url = `${String(FRONT_BASE_URL)}/${String(emailTypeFound.actionPath)}/${token}`;
+    const url = `${String(FRONT_BASE_URL)}${String(emailTypeFound.actionPath)}/${token}`;
 
     const mailOptions: Mail.Options = {
       from: `Olympus GYM - ${String(GMAIL_APP_USER)}`,
