@@ -15,7 +15,7 @@ authRoutes.put('/verify-email', AuthController.verifyEmail);
 authRoutes.post('/resend-verification-email', AuthController.resendVerificationEmail);
 
 authRoutes.post('/send-reset-password-email', AuthController.sendResetPasswordEmail);
-authRoutes.post('/set-new-password', AuthController.setNewPassword);
+authRoutes.put('/set-new-password', AuthController.setNewPassword);
 
 authRoutes.post('/2fa/setup', authenticateMiddleware, AuthController.setup2FA);
 authRoutes.post('/2fa/verify', authenticateMiddleware, AuthController.verify2FA);

@@ -14,8 +14,6 @@ class ErrorHandler {
   }
 
   public handleError(error: Error | AppError, response?: Response): void {
-    console.log({ error });
-
     if (this.isTrustedError(error) && response !== undefined) {
       this.handleTrustedError(error as AppError, response);
     } else {

@@ -16,6 +16,8 @@ export const registerSchema = z.object({
       invalid_type_error: 'Last name must be a string',
       required_error: 'Last name is required',
     })
+    .regex(RegexPatterns.onlyLetters, 'Last name must contain only letters')
+    .min(2, 'Last name must be at least 2 characters long')
     .trim(),
   phoneNumber: z
     .string({

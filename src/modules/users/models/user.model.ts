@@ -1,6 +1,10 @@
 import { PrismaClient, user } from '@prisma/client';
 
-import type { AuthLoginDataUser, NonSensitiveUserData } from '../../auth/common/types/auth.types';
+import type {
+  AdminEditableUserData,
+  AuthLoginDataUser,
+  NonSensitiveUserData,
+} from '../../auth/common/types/auth.types';
 import { AppError } from '../../../exceptions/AppError';
 
 import { hashPassword } from '../../../utils/hashPassword';
@@ -12,6 +16,7 @@ import { getSecuritySettings } from '../../configuration/models/security_setting
 
 const prisma = new PrismaClient();
 
+// Allowed methods to Client
 export const findUserByEmail = async (email: string): Promise<user> => {
   const user = await prisma.user.findUnique({
     where: {
@@ -231,5 +236,60 @@ export const resetUserPassword = async (userId: number, newPassword: string): Pr
   });
 };
 
-//  const default = async(input: data): Promise<boolean | AppError> => {
+// Allowed methods to Admin
+export const getAllUsers = async (): Promise<user[]> => {
+  const allUsers = await prisma.user.findMany();
+
+  return allUsers;
+};
+
+export const updateUserDetails = async (
+  userId: number,
+  dataToUpdate: Partial<AdminEditableUserData>
+): Promise<AdminEditableUserData> => {
+  const {
+    firstName,
+    lastName,
+    phoneNumber,
+    email,
+    role,
+    accountLocked,
+    failedLoginAttempts,
+    timeToUnlock,
+    emailVerified,
+  } = dataToUpdate;
+
+  const userDetailsUpdated = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      firstName,
+      lastName,
+      phoneNumber,
+      email, // Reverification
+      role, // Reverification
+      accountLocked,
+      failedLoginAttempts,
+      timeToUnlock,
+      emailVerified,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phoneNumber: true,
+      email: true,
+      role: true,
+      accountLocked: true,
+      failedLoginAttempts: true,
+      timeToUnlock: true,
+      emailVerified: true,
+    },
+  });
+
+  return userDetailsUpdated;
+};
+
+// export const default = async(input: data): Promise<user> => {
 // }
