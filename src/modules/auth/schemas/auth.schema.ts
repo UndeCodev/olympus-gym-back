@@ -87,6 +87,7 @@ export const verifyEmailSchema = tokenAndNewPasswordSchema.pick({ token: true })
 
 // Email and token for 2FA
 export const verify2FaSchema = z.object({
+  userId: z.number().positive(),
   token: z.string(),
-  secret: z.string(),
+  secret: z.string().optional(),
 });

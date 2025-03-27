@@ -22,10 +22,13 @@ import { AppError } from '../../../exceptions/AppError';
 import { sendEmail } from '../../../services/mailService';
 import { zodValidation } from '../../../utils/zodValidation';
 import { authenticator } from 'otplib';
+import { PrismaClient } from '@prisma/client';
 
 interface TokenPayload extends JwtPayload {
   id: number;
 }
+
+const prisma = new PrismaClient();
 
 // Validates user inputs
 export const createUser = async (
@@ -70,6 +73,15 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   try {
     const user = await UserModel.loginUser(resultValidation.data);
 
+    if (user.twoFactorEnabled) {
+      res.json({
+        requires2FA: true,
+        userId: user.id,
+      });
+
+      return;
+    }
+
     const token = jwt.sign({ id: user.id }, String(JWT_SECRET), {
       expiresIn: '1h',
     });
@@ -80,8 +92,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         secure: NODE_ENV === 'production',
         sameSite: 'strict',
       })
-      .send({
-        user,
+      .json({
+        requires2FA: false,
+        userId: user.id,
       });
   } catch (error) {
     next(error);
@@ -233,6 +246,51 @@ export const setNewPassword = async (
   }
 };
 
+export const checkSecurityQuestion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = zodValidation(justUserEmailSchema, req.body);
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format(),
+    });
+    return;
+  }
+
+  const { email } = resultValidation.data;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { securityQuestion: true },
+    });
+
+    if (!user) {
+      res.status(HttpCode.NOT_FOUND).json({
+        message: 'no se encontro al usuario',
+      });
+      return;
+    }
+
+    if (!user.securityQuestion) {
+      res.json({
+        hasSecurityQuestion: false,
+      });
+      return;
+    }
+
+    res.json({
+      hasSecurityQuestion: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const changePassword = async (
   req: Request,
   res: Response,
@@ -288,29 +346,44 @@ export const verify2FA = async (req: Request, res: Response, next: NextFunction)
       message: 'Validation error',
       errors: resultValidation.error.format(),
     });
+
+    console.log(resultValidation.error.format());
     return;
   }
 
   try {
-    const userId = res.locals.userId;
+    const { token, userId, secret } = resultValidation.data;
+
     const userFound = await UserModel.findUserById(+userId);
 
-    const { token, secret } = resultValidation.data;
-    const isTokenValid = authenticator.verify({ token, secret });
+    if (!userFound.twoFactorEnabled && secret) {
+      await AuthModel.enable2FA(userFound.email, secret);
+    }
+
+    const isTokenValid = authenticator.verify({
+      token,
+      secret: secret ?? String(userFound.twoFASecret),
+    });
 
     if (!isTokenValid) {
       res.status(HttpCode.UNAUTHORIZED).json({
-        message: 'Token inválido.',
+        message: 'Código de verificación inválido.',
       });
 
       return;
     }
 
-    if (!userFound.twoFactorEnabled) {
-      await AuthModel.enable2FA(userFound.email);
-    }
+    const jwtToken = jwt.sign({ id: userFound.id }, String(JWT_SECRET), {
+      expiresIn: '1h',
+    });
 
-    res.sendStatus(HttpCode.OK);
+    res
+      .cookie('access_token', jwtToken, {
+        httpOnly: true,
+        secure: NODE_ENV === 'production',
+        sameSite: 'strict',
+      })
+      .sendStatus(200);
   } catch (error) {
     next(error);
   }

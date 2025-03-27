@@ -8,19 +8,16 @@ import { hashPassword } from '../../../utils/hashPassword';
 
 const prisma = new PrismaClient();
 
-export const enable2FA = async (email: string): Promise<void> => {
-  const userFound = await UserModel.findUserByEmail(email);
-
-  if (!userFound.twoFactorEnabled) {
-    await prisma.user.update({
-      where: {
-        email,
-      },
-      data: {
-        twoFactorEnabled: true,
-      },
-    });
-  }
+export const enable2FA = async (email: string, secret: string): Promise<void> => {
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      twoFactorEnabled: true,
+      twoFASecret: secret,
+    },
+  });
 };
 
 export const disable2FA = async (email: string): Promise<void> => {

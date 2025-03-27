@@ -20,8 +20,11 @@ authRoutes.get('/check-status', authenticateMiddleware, AuthController.checkAuth
 // All this routes needs a user authenticated
 authRoutes.put('/change-password', authenticateMiddleware, AuthController.changePassword);
 
+authRoutes.post('/2fa/verify', AuthController.verify2FA);
+
 authRoutes.post('/2fa/setup', authenticateMiddleware, AuthController.setup2FA);
-authRoutes.post('/2fa/verify', authenticateMiddleware, AuthController.verify2FA);
 authRoutes.post('/2fa/disable', authenticateMiddleware, AuthController.disable2FA);
+
+authRoutes.post('/check-security-question', AuthController.checkSecurityQuestion);
 
 export default authRoutes;
