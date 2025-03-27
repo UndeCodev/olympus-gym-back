@@ -13,6 +13,7 @@ import { comparePassword } from '../../../utils/comparePassword';
 import { User } from '../common/interfaces/user.interface';
 import { HttpCode } from '../../../common/enums/HttpCode';
 import { getSecuritySettings } from '../../configuration/models/security_settings.model';
+import { Optional } from '@prisma/client/runtime/library';
 
 const prisma = new PrismaClient();
 
@@ -239,8 +240,27 @@ export const resetUserPassword = async (userId: number, newPassword: string): Pr
 };
 
 // Allowed methods to Admin
-export const getAllUsers = async (): Promise<user[]> => {
-  const allUsers = await prisma.user.findMany();
+export const getAllUsers = async (): Promise<Optional<user>[]> => {
+  const allUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phoneNumber: true,
+      birthDate: true,
+      email: true,
+      password: false,
+      failedLoginAttempts: true,
+      timeToUnlock: true,
+      accountLocked: true,
+      emailVerified: true,
+      twoFactorEnabled: true,
+      twoFASecret: false,
+      createdAt: true,
+      updatedAt: true,
+      role: true,
+    },
+  });
 
   return allUsers;
 };
@@ -249,32 +269,14 @@ export const updateUserDetails = async (
   userId: number,
   dataToUpdate: Partial<AdminEditableUserData>
 ): Promise<AdminEditableUserData> => {
-  const {
-    firstName,
-    lastName,
-    phoneNumber,
-    email,
-    role,
-    accountLocked,
-    failedLoginAttempts,
-    timeToUnlock,
-    emailVerified,
-  } = dataToUpdate;
+  await findUserById(userId);
 
   const userDetailsUpdated = await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
-      firstName,
-      lastName,
-      phoneNumber,
-      email, // Reverification
-      role, // Reverification
-      accountLocked,
-      failedLoginAttempts,
-      timeToUnlock,
-      emailVerified,
+      ...dataToUpdate,
     },
     select: {
       id: true,
@@ -291,6 +293,37 @@ export const updateUserDetails = async (
   });
 
   return userDetailsUpdated;
+};
+
+export const searchUserByQuery = async (
+  name?: string,
+  email?: string,
+  phoneNumber?: string
+): Promise<Optional<user>[]> => {
+  const users = await prisma.user.findMany({
+    where: {
+      AND: [
+        name
+          ? {
+              OR: [{ firstName: { contains: name } }, { lastName: { contains: name } }],
+            }
+          : {},
+        email ? { email: { contains: email } } : {},
+        phoneNumber ? { phoneNumber: { contains: phoneNumber } } : {},
+      ],
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phoneNumber: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+
+  return users;
 };
 
 // export const default = async(input: data): Promise<user> => {

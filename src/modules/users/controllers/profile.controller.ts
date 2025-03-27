@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 
 import * as ProfileModel from '../models/profile.model';
 import { zodValidation } from '../../../utils/zodValidation';
-import { currentPasswordSchema, userProfileSchema } from '../schemas/user.schema';
+import { currentPasswordSchema, userIdSchema, userProfileSchema } from '../schemas/user.schema';
 import { HttpCode } from '../../../common/enums/HttpCode';
 import bcrypt from 'bcrypt';
+import { findUserById } from '../models/user.model';
 
 export const getUserProfile = async (
   _req: Request,
@@ -95,6 +96,36 @@ export const deleteUserProfile = async (
 
     res.json({
       message: 'Profile deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserProfileByAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = zodValidation(userIdSchema, req.params);
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format(),
+    });
+    return;
+  }
+
+  const { id } = resultValidation.data;
+
+  try {
+    await findUserById(id);
+
+    await ProfileModel.deleteUserProfile(id);
+
+    res.json({
+      message: 'Perfil eliminado correctamente.',
     });
   } catch (error) {
     next(error);

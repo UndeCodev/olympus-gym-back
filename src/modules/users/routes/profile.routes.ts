@@ -6,5 +6,6 @@ const profileRoutes = Router();
 profileRoutes.get('/', ProfileController.getUserProfile);
 profileRoutes.put('/', ProfileController.updateUserProfile);
 profileRoutes.delete('/', ProfileController.deleteUserProfile);
+profileRoutes.delete('/delete/:id', ProfileController.deleteUserProfileByAdmin);
 
 export default profileRoutes;
