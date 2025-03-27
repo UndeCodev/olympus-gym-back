@@ -9,7 +9,7 @@ export const authenticateMiddleware = (req: Request, res: Response, next: NextFu
 
   if (!token) {
     res.status(HttpCode.FORBIDDEN).json({
-      message: 'No token provided',
+      message: 'Acceso no autorizado',
     });
 
     return;

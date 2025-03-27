@@ -18,6 +18,8 @@ app.use(corsMiddleware());
 app.use(morgan('dev'));
 
 app.get('/', (_req: Request, res: Response) => {
+  throw new Error('Error no controlado');
+
   res.send('Hello World');
 });
 

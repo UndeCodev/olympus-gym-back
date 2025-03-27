@@ -1,5 +1,28 @@
-import { User } from '../../../users/common/interfaces/user.interface';
+import { user } from '@prisma/client';
 
-export type NonSensitiveUserData = Omit<User, 'password' | 'emailVerified' | 'twoFactorEnabled'>;
+export type NonSensitiveUserData = Pick<
+  user,
+  | 'id'
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'phoneNumber'
+  | 'birthDate'
+  | 'role'
+  | 'twoFactorEnabled'
+>;
 
-export type AuthLoginDataUser = Pick<User, 'email' | 'password'>;
+export type AuthLoginDataUser = Pick<user, 'email' | 'password'>;
+
+export type AdminEditableUserData = Pick<
+  user,
+  | 'firstName'
+  | 'lastName'
+  | 'phoneNumber'
+  | 'email'
+  | 'role'
+  | 'accountLocked'
+  | 'failedLoginAttempts'
+  | 'timeToUnlock'
+  | 'emailVerified'
+>;

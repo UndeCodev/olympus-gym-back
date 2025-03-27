@@ -7,22 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model security_question {
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  question String
+  answer   String // Aquí se almacenará la respuesta hasheada
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model user {
-  id                  Int       @id @default(autoincrement())
+  id                  Int                @id @default(autoincrement())
   firstName           String
   lastName            String
   phoneNumber         String
   birthDate           DateTime
-  email               String    @unique(map: "User_email_key")
+  email               String             @unique(map: "User_email_key")
   password            String
-  failedLoginAttempts Int       @default(0)
+  failedLoginAttempts Int                @default(0)
   timeToUnlock        DateTime?
-  accountLocked       Boolean   @default(false)
-  emailVerified       Boolean   @default(false)
-  twoFactorEnabled    Boolean   @default(false)
-  createdAt           DateTime  @default(now())
+  accountLocked       Boolean            @default(false)
+  emailVerified       Boolean            @default(false)
+  twoFactorEnabled    Boolean            @default(false)
+  twoFASecret         String?
+  createdAt           DateTime           @default(now())
   updatedAt           DateTime?
-  role                Role      @default(Client)
+  role                Role               @default(Client)
+  securityQuestion    security_question? // Relación opcional
 }
 
 // Tables to role admin

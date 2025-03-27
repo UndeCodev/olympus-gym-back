@@ -16,17 +16,16 @@ export const registerSchema = z.object({
       invalid_type_error: 'Last name must be a string',
       required_error: 'Last name is required',
     })
+    .regex(RegexPatterns.onlyLetters, 'Last name must contain only letters')
+    .min(2, 'Last name must be at least 2 characters long')
     .trim(),
   phoneNumber: z
     .string({
       invalid_type_error: 'Phone number must be a string',
       required_error: 'Phone number is required',
     })
-    .regex(
-      /^\d{3}-\d{3}-\d{4}$/,
-      'Invalid phone number format. Expected format: ###-###-####'
-    ),
-  birthDate: z.string().date(),
+    .regex(/^\d{3}-\d{3}-\d{4}$/, 'Invalid phone number format. Expected format: ###-###-####'),
+  birthDate: z.coerce.date(),
   email: z
     .string({
       invalid_type_error: 'Email must be a string',
@@ -55,15 +54,40 @@ export const loginSchema = registerSchema.pick({ email: true }).extend({
 });
 
 export const tokenAndNewPasswordSchema = z.object({
-  newPassword: z.string({
-    invalid_type_error: 'Password must be a string',
-    required_error: 'Password is required',
-  }),
+  newPassword: z
+    .string({
+      invalid_type_error: 'Password must be a string',
+      required_error: 'Password is required',
+    })
+    .refine(
+      validator.isStrongPassword,
+      'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol'
+    ),
   token: z.string({
     invalid_type_error: 'Token must be a string',
     required_error: 'Token is required',
   }),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z
+    .string()
+    .refine(
+      validator.isStrongPassword,
+      'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol'
+    ),
+});
+
 // Just the email
 export const justUserEmailSchema = registerSchema.pick({ email: true });
+
+// Just the token
+export const verifyEmailSchema = tokenAndNewPasswordSchema.pick({ token: true });
+
+// Email and token for 2FA
+export const verify2FaSchema = z.object({
+  userId: z.number().positive(),
+  token: z.string(),
+  secret: z.string().optional(),
+});
